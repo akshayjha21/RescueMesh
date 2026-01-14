@@ -2,7 +2,10 @@ module github.com/akshayjha21/RescueMesh.git
 
 go 1.25.4
 
-require github.com/libp2p/go-libp2p v0.46.0
+require (
+	github.com/libp2p/go-libp2p v0.46.0
+	github.com/libp2p/go-libp2p-pubsub v0.15.0
+)
 
 require (
 	github.com/benbjohnson/clock v1.3.5 // indirect
@@ -11,8 +14,10 @@ require (
 	github.com/davidlazar/go-crypto v0.0.0-20200604182044-b73af7476f6c // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/flynn/noise v1.1.0 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/huin/goupnp v1.3.0 // indirect
 	github.com/ipfs/go-cid v0.5.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
