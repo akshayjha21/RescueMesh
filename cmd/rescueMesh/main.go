@@ -4,7 +4,18 @@ import (
 	"encoding/json"
 	"net/http"
 	"sync"
+	"flag"
 	"fmt"
+	"log"
+	// "net/http"
+	"os"
+	"context"
+	"bufio"
+	// "sync"
+	"time"
+	// "github.com/RescueMesh/internal/p2p"
+	
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/akshayjha21/RescueMesh.git/internal/p2p"
 )
 
@@ -77,5 +88,142 @@ func PostMessage(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+
+}
+func main() {
+
+	port := flag.String("port", "", "port")
+	nickFlag := flag.String("nick", "", "nickname to use in chat. will be generated if empty")
+	roomFlag := flag.String("room", "chat-room", "name of chat room to join")
+	httpServerRun := flag.Bool("enable-http", false, "run http server on this node")
+
+	// peerAddr := flag.String("peer-address", "", "peer address")
+	sameNetworkString := flag.String("same_string", "", "same_string")
+
+	flag.Parse()
+	h, _, err1 := p2p.CreateHost(*port)
+
+	if err1 != nil {
+		log.Fatal("error creating the host")
+	}
+
+	ctx := context.Background()
+
+	ps, err := pubsub.NewGossipSub(ctx, h)
+	if err != nil {
+		panic(err)
+	}
+	peerChan := p2p.InitMDNS(h, *sameNetworkString)
+
+	go func() {
+
+		for {
+			peer := <-peerChan // will block until we discover a peer
+			if peer.ID > h.ID() {
+				// if other end peer id greater than us, don't connect to it, just wait for it to connect us
+				fmt.Println("Found peer:", peer, " id is greater than us, wait for it to connect to us")
+				continue
+			}
+			fmt.Println("Discovered new peer via mDNS:", peer.ID, peer.Addrs)
+
+			if err := h.Connect(ctx, peer); err != nil {
+				fmt.Println("Connection failed:", err)
+				continue
+			}
+
+			log.Println("Connection to the peer found through MDNS has been established")
+			log.Println("Peer Id:", peer.ID, "Peer Addrs: ", peer.Addrs)
+
+		}
+	}()
+	//logic for connecting to peer through peer-address if we know it beforehand and pass it through terminal
+
+	// If we received a peer address, we should connect to it.
+	// if *peerAddr != "" {
+	// 	// Parse the multiaddr string.
+	// 	peerMA, err := ma.NewMultiaddr(*peerAddr)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	peerAddrInfo, err := peer.AddrInfoFromP2pAddr(peerMA)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+
+	// 	// Connect to the node at the given address.
+	// 	if err := h.Connect(context.Background(), *peerAddrInfo); err != nil {
+	// 		panic(err)
+	// 	}
+	// 	log.Println("Connected to", peerAddrInfo.String())
+	// }
+
+	// use the nickname from the cli flag, or a default if blank
+	nick := *nickFlag
+	if len(nick) == 0 {
+		nick = "ABHI"
+	}
+
+	room := *roomFlag
+
+	// join the chat room
+	cr, err = p2p.JoinChatRoom(ctx, ps, h.ID(), nick, room)
+	if err != nil {
+		panic(err)
+	}
+
+	if *httpServerRun {
+		go func() {
+
+			http.HandleFunc("/send", PostMessage)
+
+			http.HandleFunc("/messages", GetMessage)
+			err := http.ListenAndServe(":3001", nil)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+		}()
+	}
+
+	f, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal("error opening logs.txt")
+	}
+	// Read incoming messages
+	go func() {
+		for msg := range cr.Messages {
+			text := fmt.Sprintf("Received message at %s from %s: %s\n", time.Now().Local(), msg.SenderNick, msg.Message)
+			StoreMessage(text)
+			fmt.Printf("Received message at %s from %s: %s\n", time.Now().Local(), msg.SenderNick, msg.Message)
+			_, err_log := f.WriteString(text)
+			if err_log != nil {
+				log.Fatal("error writing logs..")
+				continue
+			}
+		}
+	}()
+
+	fmt.Println("Sending test message...")
+	reader := bufio.NewReader(os.Stdin)
+	err = cr.Publish("Hello from " + h.ID().String())
+	if err != nil {
+		fmt.Println("Error publishing:", err)
+	}
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatal(err)
+		}
+		// fmt.Printf("Sent message from %s: %s\n", nick, "Hello from "+h.ID().String())
+
+		err_pub := cr.Publish(line)
+
+		if err_pub != nil {
+			fmt.Println("Sending message failed trying again...")
+			cr.Publish(line)
+			continue
+		}
+
+	}
 
 }

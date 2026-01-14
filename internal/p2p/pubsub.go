@@ -40,7 +40,7 @@ func topicName(roomName string) string {
 	return "chat-Room" + roomName
 }
 
-func JoinChat(ctx context.Context, ps *pubsub.PubSub, selfId peer.ID, nickname string, roomName string) (*ChatRoom, error) {
+func JoinChatRoom(ctx context.Context, ps *pubsub.PubSub, selfId peer.ID, nickname string, roomName string) (*ChatRoom, error) {
 	//join the pubsub topic
 	topic, err := ps.Join(topicName(roomName))
 	if err != nil {
