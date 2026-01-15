@@ -1,4 +1,4 @@
-# 🛡️ RescueMesh
+#  🛜RescueMesh
 
 **RescueMesh** is an offline-first, peer-to-peer (P2P) emergency communication system designed for disaster-prone areas where internet connectivity is non-existent. 
 
