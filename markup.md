@@ -56,7 +56,6 @@ This roadmap focuses on the **Must-Have** features that demonstrate backend matu
 - [ ] **Sync Status Bar:** Clear visual feedback showing if the node is "Mesh Only" or "Cloud Synced."
 
 ---
-
 ### **Resume Talking Points Enabled by this Roadmap:**
 * "Architected a **Hybrid Cloud-Mesh** system using **Go** and **libp2p** to maintain communication in 100% offline environments."
 * "Optimized network overhead by **40%** via **Protobuf** serialization and implemented **SQLite** for edge-case data persistence."
