@@ -11,7 +11,6 @@ This roadmap focuses on the **Must-Have** features that demonstrate backend matu
 - [ ] **Protobuf Migration:** Replace JSON/String payloads with **Protocol Buffers** to reduce packet size by ~40% and optimize radio bandwidth.
 - [ ] **Message Acknowledgments (ACKs):** Implement a feedback loop where nodes send a "received" signal back to the sender to verify delivery in the mesh.
 - [ ] **Store-and-Forward:** Create a local queue to store messages for peers that are currently out of range, automatically re-sending once they are rediscovered.
-
 ---
 
 ## 🔋 Phase 2: Power Optimization (The Interview "Hook")
@@ -19,7 +18,6 @@ This roadmap focuses on the **Must-Have** features that demonstrate backend matu
 
 - [ ] **Burst Transmission Algorithm:** Implement a "Sleep-Wake" cycle where mDNS and GossipSub radios only activate for a 15-second "Burst" every 2 minutes.
 - [ ] **Battery-Aware Logic:** Develop a trigger to automatically increase the "Sleep" interval when the device battery drops below 20%.
-
 ---
 
 ## 🛡️ Phase 3: Security & Identity
