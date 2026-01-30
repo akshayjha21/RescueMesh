@@ -7,7 +7,7 @@ This roadmap focuses on the **Must-Have** features that demonstrate backend matu
 ## 📦 Phase 1: Data Integrity & Reliability
 *Goal: Ensure no data is lost and communication is optimized for low-bandwidth.*
 
-- [ ] **SQLite Persistence:** Replace `logs.txt` with an SQLite database to handle message history, metadata, and crash recovery.
+- [✅] **SQLite Persistence:** Replace `logs.txt` with an SQLite database to handle message history, metadata, and crash recovery.
 - [ ] **Protobuf Migration:** Replace JSON/String payloads with **Protocol Buffers** to reduce packet size by ~40% and optimize radio bandwidth.
 - [ ] **Message Acknowledgments (ACKs):** Implement a feedback loop where nodes send a "received" signal back to the sender to verify delivery in the mesh.
 - [ ] **Store-and-Forward:** Create a local queue to store messages for peers that are currently out of range, automatically re-sending once they are rediscovered.

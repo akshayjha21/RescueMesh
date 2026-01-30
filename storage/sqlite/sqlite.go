@@ -1,9 +1,10 @@
 package sqlite
 
 import (
-	"time"
-	"regexp"
 	"log"
+	"regexp"
+	"time"
+
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
@@ -15,21 +16,21 @@ type Message struct {
 	Content   string    `json:"content"`
 }
 
-type Sqlite struct{
+type Sqlite struct {
 	Db *gorm.DB
 }
 
-func InitDB()(*Sqlite,error){
+func InitDB() (*Sqlite, error) {
 	db, err := gorm.Open(sqlite.Open("storage.db"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Database connection has been established");
-	err=db.AutoMigrate(&Message{})
+	log.Println("Database connection has been established")
+	err = db.AutoMigrate(&Message{})
 	if err != nil {
 		return nil, err
 	}
-	return &Sqlite{Db:db},nil
+	return &Sqlite{Db: db}, nil
 }
 func MigrateFromText(db *gorm.DB, rawData string) error {
 	// Updated regex to capture your specific log layout
@@ -58,4 +59,13 @@ func MigrateFromText(db *gorm.DB, rawData string) error {
 		return nil
 	})
 }
-
+func (db *Sqlite) GetRecords() ([]Message, error) {
+	var message []Message
+	results := db.Db.Order("id DESC").
+		Limit(10).
+		Find(&message)
+	if results.Error != nil {
+		return nil, results.Error
+	}
+	return message, nil
+}
